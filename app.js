@@ -60,4 +60,6 @@ function addToCart(name, price) {
   localStorage.setItem("cart", JSON.stringify(cart));
 
   alert(name + " added to cart");
-}
+}<script src="app.js"></script>
+
+
