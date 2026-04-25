@@ -32,3 +32,32 @@ function placeOrder() {
   localStorage.removeItem("cart");
   window.location.href = "menu.html";
 }
+fetch("https://chapati-api.onrender.com/menu")
+  .then(res => res.json())
+  .then(data => {
+    const menuContainer = document.getElementById("menu");
+
+    data.forEach(item => {
+      const div = document.createElement("div");
+
+      div.innerHTML = `
+        <h3>${item.name}</h3>
+        <p>Ksh ${item.price}</p>
+        <button onclick="addToCart('${item.name}', ${item.price})">
+          Add to Cart
+        </button>
+      `;
+
+      menuContainer.appendChild(div);
+    });
+  });
+
+function addToCart(name, price) {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  cart.push({ name, price });
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  alert(name + " added to cart");
+}
