@@ -1,23 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Cart</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-<header>
-  <h1>Your Cart 🛒</h1>
-  <a href="checkout.html">Checkout</a>
-</header>
+async function loadMenu() {
+  const res = await fetch("https://chapati-api.onrender.com/menu");
+  const data = await res.json();
 
-<section id="cart"></section>
+  const menu = document.getElementById("menu");
 
-<script src="app.js"></script>
-<script>
-  renderCart();
-</script>
+  data.forEach(item => {
+    menu.innerHTML += `
+      <div class="card">
+        <img src="images/food.jpg">
+        <h3>${item.name}</h3>
+        <p>KSh ${item.price}</p>
+        <button onclick="add('${item.name}', ${item.price})">
+          Add
+        </button>
+      </div>
+    `;
+  });
+}
 
-</body>
-</html>
-<script src="app.js"></script>
+function add(name, price) {
+  cart.push({ name, price });
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  alert(name + " added to cart 🛒");
+}
+
+loadMenu();
