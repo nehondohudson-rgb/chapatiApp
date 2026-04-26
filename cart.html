@@ -1,31 +1,75 @@
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cart</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-async function loadMenu() {
-  const res = await fetch("https://chapati-api.onrender.com/menu");
-  const data = await res.json();
+  <h1>🛒 Your Cart</h1>
 
-  const menu = document.getElementById("menu");
+  <div id="cart-items"></div>
 
-  data.forEach(item => {
-    menu.innerHTML += `
-      <div class="card">
-        <img src="images/food.jpg">
-        <h3>${item.name}</h3>
-        <p>KSh ${item.price}</p>
-        <button onclick="add('${item.name}', ${item.price})">
-          Add
-        </button>
-      </div>
-    `;
-  });
-}
+  <h2 id="total"></h2>
 
-function add(name, price) {
-  cart.push({ name, price });
+  <button onclick="checkout()">Checkout</button>
 
-  localStorage.setItem("cart", JSON.stringify(cart));
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  alert(name + " added to cart 🛒");
-}
+    function renderCart() {
+      let container = document.getElementById("cart-items");
+      container.innerHTML = "";
 
-loadMenu();
+      let total = 0;
+
+      cart.forEach(item => {
+        total += item.price;
+
+        container.innerHTML += `
+          <div class="card">
+            <h3>${item.name}</h3>
+            <p>KSh ${item.price}</p>
+          </div>
+        `;
+      });
+
+      document.getElementById("total").innerText = "Total: KSh " + total;
+    }
+
+    function checkout() {
+      if (cart.length === 0) {
+        alert("Cart is empty 🛒");
+        return;
+      }
+
+      let total = cart.reduce((sum, item) => sum + item.price, 0);
+
+      fetch("https://chapati-api.onrender.com/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          items: cart,
+          total: total
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert("Order placed successfully 🚀");
+        localStorage.removeItem("cart");
+        window.location.href = "menu.html";
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Failed to place order ❌");
+      });
+    }
+
+    renderCart();
+  </script>
+
+</body>
+</html>

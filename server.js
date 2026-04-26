@@ -1,14 +1,17 @@
 const express = require("express");
 const cors = require("cors");
 
-const app = express();
+const app = express();app.get("/", (req, res) => {
+  res.send("🍛 Chapati API is running successfully 🚀");
+});
 
 app.use(cors());
 app.use(express.json());
 
+// In-memory orders
 let orders = [];
 
-// MENU ROUTE
+// MENU
 app.get("/menu", (req, res) => {
   res.json([
     { id: 1, name: "Chapati", price: 20 },
@@ -18,7 +21,7 @@ app.get("/menu", (req, res) => {
   ]);
 });
 
-// ORDER ROUTE
+// CREATE ORDER
 app.post("/order", (req, res) => {
   const order = req.body;
 
@@ -37,8 +40,25 @@ app.get("/orders", (req, res) => {
   res.json(orders);
 });
 
+// UPDATE ORDER STATUS
+app.patch("/order/:id", (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  let order = orders.find(o => o.id == id);
+
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  order.status = status;
+
+  res.json({ message: "Status updated 🚀", order });
+});
+
 // START SERVER
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log("Chapati API is running 🚀");
 });

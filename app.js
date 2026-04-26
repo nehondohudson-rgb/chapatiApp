@@ -1,33 +1,60 @@
-fetch("https://chapati-api.onrender.com/menu")
-  .then(res => res.json())
-  .then(data => {
-    const menuContainer = document.getElementById("menu");
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    data.forEach(item => {
-      const card = document.createElement("div");
+async function loadMenu() {
+  const res = await fetch("https://chapati-api.onrender.com/menu");
+  const data = await res.json();
 
-      card.style.border = "1px solid #ccc";
-      card.style.padding = "10px";
-      card.style.margin = "10px";
+  const menu = document.getElementById("menu");
+  menu.innerHTML = "";
 
-      card.innerHTML = `
+  data.forEach(item => {
+    menu.innerHTML += `
+      <div class="card">
         <h3>${item.name}</h3>
-        <p>Ksh ${item.price}</p>
-        <button onclick="addToCart('${item.name}', ${item.price})">
+        <p>KSh ${item.price}</p>
+        <button onclick="add('${item.name}', ${item.price})">
           Add to Cart
         </button>
-      `;
-
-      menuContainer.appendChild(card);
-    });
+      </div>
+    `;
   });
+}
 
-function addToCart(name, price) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
+function add(name, price) {
   cart.push({ name, price });
-
   localStorage.setItem("cart", JSON.stringify(cart));
-
   alert(name + " added to cart 🛒");
 }
+
+function checkout() {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if (cart.length === 0) {
+    alert("Cart is empty 🛒");
+    return;
+  }
+
+  let total = cart.reduce((sum, item) => sum + item.price, 0);
+
+  fetch("https://chapati-api.onrender.com/order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      items: cart,
+      total: total
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert("Order placed successfully 🚀");
+    localStorage.removeItem("cart");
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Failed to place order ❌");
+  });
+}
+
+loadMenu();
