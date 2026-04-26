@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Menu</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -9,40 +8,13 @@
 
   <h1>🍛 Menu</h1>
 
+  <a href="cart.html">
+    <button>🛒 View Cart</button>
+  </a>
+
   <div id="menu"></div>
 
-  <!-- IMPORTANT: JS MUST BE INSIDE SCRIPT TAG -->
-  <script>
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    async function loadMenu() {
-      const res = await fetch("https://chapati-api.onrender.com/menu");
-      const data = await res.json();
-
-      const menu = document.getElementById("menu");
-      menu.innerHTML = "";
-
-      data.forEach(item => {
-        menu.innerHTML += `
-          <div class="card">
-            <h3>${item.name}</h3>
-            <p>KSh ${item.price}</p>
-            <button onclick="add('${item.name}', ${item.price})">
-              Add to Cart
-            </button>
-          </div>
-        `;
-      });
-    }
-
-    function add(name, price) {
-      cart.push({ name, price });
-      localStorage.setItem("cart", JSON.stringify(cart));
-      alert(name + " added to cart 🛒");
-    }
-
-    loadMenu();
-  </script>
+  <script src="app.js"></script>
 
 </body>
 </html>

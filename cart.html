@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Cart</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -9,20 +8,18 @@
 
   <h1>🛒 Your Cart</h1>
 
-  <div id="cart-items"></div>
-
+  <div id="cart"></div>
   <h2 id="total"></h2>
 
   <button onclick="checkout()">Checkout</button>
 
   <script>
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    function renderCart() {
-      let container = document.getElementById("cart-items");
-      container.innerHTML = "";
-
+    function loadCart() {
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      let container = document.getElementById("cart");
       let total = 0;
+
+      container.innerHTML = "";
 
       cart.forEach(item => {
         total += item.price;
@@ -39,11 +36,7 @@
     }
 
     function checkout() {
-      if (cart.length === 0) {
-        alert("Cart is empty 🛒");
-        return;
-      }
-
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
       let total = cart.reduce((sum, item) => sum + item.price, 0);
 
       fetch("https://chapati-api.onrender.com/order", {
@@ -51,24 +44,17 @@
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          items: cart,
-          total: total
-        })
+        body: JSON.stringify({ items: cart, total: total })
       })
       .then(res => res.json())
-      .then(data => {
-        alert("Order placed successfully 🚀");
+      .then(() => {
+        alert("Order placed 🚀");
         localStorage.removeItem("cart");
-        window.location.href = "menu.html";
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Failed to place order ❌");
+        loadCart();
       });
     }
 
-    renderCart();
+    loadCart();
   </script>
 
 </body>
